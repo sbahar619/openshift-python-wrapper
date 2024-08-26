@@ -111,9 +111,6 @@ def get_client(
         if proxy:
             LOGGER.info(f"Trying to get client using proxy {proxy}")
             client_configuration = client.Configuration()
-            config.load_kube_config(
-                config_file=config_file, client_configuration=client_configuration, persist_config=True
-            )
             client_configuration.proxy = proxy
 
             return kubernetes.dynamic.DynamicClient(
