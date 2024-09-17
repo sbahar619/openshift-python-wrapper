@@ -86,7 +86,7 @@ class UserDefinedNetwork(NamespacedResource):
 
 class Layer2UserDefinedNetwork(UserDefinedNetwork):
     """
-    UserDefinedNetwork object.
+    UserDefinedNetwork layer2 object.
 
     API reference:
     https://ovn-kubernetes.io/api-reference/userdefinednetwork-api-spec/#layer2config
@@ -106,7 +106,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
         **kwargs,
     ):
         """
-        Create and manage UserDefinedNetwork
+        Create and manage UserDefinedNetwork with layer2 configuration
 
         Args:
             name (str): The name of the UserDefinedNetwork.
@@ -150,7 +150,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
 
 class Layer3UserDefinedNetwork(UserDefinedNetwork):
     """
-    UserDefinedNetwork object.
+    UserDefinedNetwork layer3 object.
 
     API reference:
     https://ovn-kubernetes.io/api-reference/userdefinednetwork-api-spec/#layer3config
@@ -169,7 +169,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
         **kwargs,
     ):
         """
-        Create and manage UserDefinedNetwork
+        Create and manage UserDefinedNetwork with layer3 configuration
 
         Args:
             name (str): The name of the UserDefinedNetwork.
