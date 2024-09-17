@@ -147,3 +147,63 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
             for key, value in attributes.items():
                 if value:
                     self.res["spec"]["layer2"][key] = value
+
+class Layer3UserDefinedNetwork(UserDefinedNetwork):
+    """
+    UserDefinedNetwork object.
+
+    API reference:
+    https://ovn-kubernetes.io/api-reference/userdefinednetwork-api-spec/#layer3config
+    """
+
+    def __init__(
+        self,
+        name=None,
+        namespace=None,
+        client=None,
+        role: str = None,
+        mtu: int = None,
+        subnets: list = None,
+        join_subnets: str = None,
+        *args,
+        **kwargs,
+    ):
+        """
+        Create and manage UserDefinedNetwork
+
+        Args:
+            name (str): The name of the UserDefinedNetwork.
+            namespace (str): Namespace of the UserDefinedNetwork.
+            client (DynamicClient): DynamicClient to use.
+            role (str): role describes the network role in the pod.
+            mtu (int): mtu is the maximum transmission unit for a network.
+            subnets (list) subnets are used for the pod network across the cluster.
+            join_subnets (str) join_subnets are used inside the OVN network topology.
+        """
+        super().__init__(
+            name=name,
+            namespace=namespace,
+            client=client,
+            topology=TopologyType.LAYER3,
+            *args,
+            **kwargs,
+        )
+        self.role = role
+        self.mtu = mtu
+        self.subnets = subnets
+        self.join_subnets = join_subnets
+
+    def to_dict(self) -> None:
+        super().to_dict()
+        if not self.yaml_file:
+            self.res.setdefault("spec", {}).setdefault("layer3", {})
+            attributes = {
+                "role": self.role,
+                "mtu": self.mtu,
+                "subnets": self.subnets,
+                "joinSubnets": self.join_subnets,
+            }
+
+            for key, value in attributes.items():
+                if value:
+                    self.res["spec"]["layer3"][key] = value
