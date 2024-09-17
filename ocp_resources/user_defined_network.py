@@ -99,7 +99,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
         client=None,
         role: str = None,
         mtu: int = None,
-        subnets: str = None,
+        subnets: list = None,
         join_subnets: str = None,
         ipam_lifecycle: str = None,
         *args,
@@ -114,7 +114,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
             client (DynamicClient): DynamicClient to use.
             role (str): role describes the network role in the pod.
             mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (str) subnets are used for the pod network across the cluster.
+            subnets (list) subnets are used for the pod network across the cluster.
             join_subnets (str) join_subnets are used inside the OVN network topology.
             ipam_lifecycle (str) ipam_lifecycle controls IP addresses management lifecycle.
         """
