@@ -78,9 +78,9 @@ class UserDefinedNetwork(NamespacedResource):
     @property
     def ready(self):
         return any(
-            #add type!!!!!!
             stat["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY and
-            stat["status"]  == self.Condition.Status.TRUE
+            stat["status"]  == self.Condition.Status.TRUE and
+            stat["type"] == self.Status.Type.NETWORK_READY
             for stat in self.instance.status.conditions
         )
 
