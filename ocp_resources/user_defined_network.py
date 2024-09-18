@@ -148,6 +148,30 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
                 if value:
                     self.res["spec"]["layer2"][key] = value
 
+
+class Layer3Subnets:
+    """
+    UserDefinedNetwork layer3 subnets object.
+
+    API reference:
+    https://ovn-kubernetes.io/api-reference/userdefinednetwork-api-spec/#layer3subnet
+    """
+    def __init__(
+            self,
+            cidr: str = None,
+            host_subnet: int = None,
+    ):
+        """
+        UserDefinedNetwork layer3 subnets object.
+
+        Args:
+            cidr (str): CIDR specifies L3Subnet, which is split into smaller subnets for every node.
+            host_subnet (int): host_subnet specifies the subnet size for every node.
+        """
+        self.cidr = cidr
+        self.host_subnet = host_subnet
+
+
 class Layer3UserDefinedNetwork(UserDefinedNetwork):
     """
     UserDefinedNetwork layer3 object.
@@ -163,7 +187,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
         client=None,
         role: str = None,
         mtu: int = None,
-        subnets: list = None,
+        subnets: list[Layer3Subnets] = None,
         join_subnets: str = None,
         *args,
         **kwargs,
@@ -177,7 +201,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
             client (DynamicClient): DynamicClient to use.
             role (str): role describes the network role in the pod.
             mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (list) subnets are used for the pod network across the cluster.
+            subnets (list[Layer3Subnets]) subnets are used for the pod network across the cluster.
             join_subnets (str) join_subnets are used inside the OVN network topology.
         """
         super().__init__(
@@ -200,10 +224,20 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
             attributes = {
                 "role": self.role,
                 "mtu": self.mtu,
-                "subnets": self.subnets,
                 "joinSubnets": self.join_subnets,
             }
 
             for key, value in attributes.items():
                 if value:
                     self.res["spec"]["layer3"][key] = value
+
+            if self.subnets:
+                # TODO add check it is a list
+                self.res["spec"]["layer3"].setdefault("subnets", [])
+
+                for subnet in self.subnets:
+                    subnet_dict = {
+                        "cidr": subnet.cidr,
+                        "hostSubnet": subnet.host_subnet,
+                    }
+                    self.res["spec"]["layer3"]["subnets"].append(subnet_dict)
