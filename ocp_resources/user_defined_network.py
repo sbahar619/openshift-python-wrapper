@@ -3,11 +3,9 @@ from typing import Optional, Dict, Any
 from ocp_resources.resource import NamespacedResource
 
 
-class TopologyType():
+class TopologyType:
     LAYER2 = "Layer2"
     LAYER3 = "Layer3"
-    LOCALNET = "LocalNet"
-
 
 class UserDefinedNetwork(NamespacedResource):
     """
@@ -232,7 +230,6 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
                     self.res["spec"]["layer3"][key] = value
 
             if self.subnets:
-                # TODO add check it is a list
                 self.res["spec"]["layer3"].setdefault("subnets", [])
 
                 for subnet in self.subnets:
