@@ -1,5 +1,7 @@
 from typing import Optional, Dict, Any
 
+from timeout_sampler import TimeoutSampler, TimeoutExpiredError
+
 from ocp_resources.resource import NamespacedResource
 
 
@@ -8,6 +10,9 @@ class TopologyType():
     LAYER3 = "Layer3"
     LOCALNET = "LocalNet"
 
+
+class UdnConfigurationFailed(Exception):
+    pass
 
 class UserDefinedNetwork(NamespacedResource):
     """
@@ -75,14 +80,56 @@ class UserDefinedNetwork(NamespacedResource):
             NETWORK_ATTACHMENT_DEFINITION_READY = "NetworkAttachmentDefinitionReady"
             SYNC_ERROR = "SyncError"
 
+    def is_ready_condition(self, condition):
+        return (
+                condition["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY and
+                condition["status"] == self.Condition.Status.TRUE and
+                condition["type"] == self.Status.Type.NETWORK_READY
+        )
+
+    def is_sync_error_condition(self, condition):
+        return (
+            condition["reason"] == self.Status.Reason.SYNC_ERROR and
+            condition["status"] == self.Condition.Status.FALSE and
+            condition["type"] == self.Status.Type.NETWORK_READY
+        )
+
+    @property
+    def conditions(self):
+        return self.instance.status.conditions
+
     @property
     def ready(self):
         return any(
-            stat["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY and
-            stat["status"]  == self.Condition.Status.TRUE and
-            stat["type"] == self.Status.Type.NETWORK_READY
-            for stat in self.instance.status.conditions
+            self.is_ready_condition(condition=condition)
+            for condition in self.conditions
         )
+
+    @property
+    def sync_error(self):
+        return any(
+            self.is_sync_error_condition(condition=condition)
+            for condition in self.conditions
+        )
+
+    def wait_for_status_condition_ready(self):
+        samples = TimeoutSampler(wait_timeout=120, sleep=2, func=lambda: self.conditions)
+        try:
+            for sample in samples:
+                for condition in sample:
+                    if self.is_ready_condition(condition=condition):
+                        self.logger.info(f"UDN {self.name} configured Successfully")
+                        return condition
+                    elif self.is_sync_error_condition(condition=condition):
+                        raise UdnConfigurationFailed(
+                            f"Failed to configure UDN {self.name} with condition message {condition['message']}"
+                        )
+
+        except (TimeoutExpiredError, UdnConfigurationFailed):
+            self.logger.error(
+                f"Unable to configure UDN {self.name} "
+            )
+            raise
 
 class Layer2UserDefinedNetwork(UserDefinedNetwork):
     """
