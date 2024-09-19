@@ -161,9 +161,9 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
             client (DynamicClient): DynamicClient to use.
             role (str): role describes the network role in the pod.
             mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (list) subnets are used for the pod network across the cluster.
-            join_subnets (str) join_subnets are used inside the OVN network topology.
-            ipam_lifecycle (str) ipam_lifecycle controls IP addresses management lifecycle.
+            subnets (list): subnets are used for the pod network across the cluster.
+            join_subnets (str): join_subnets are used inside the OVN network topology.
+            ipam_lifecycle (str): ipam_lifecycle controls IP addresses management lifecycle.
         """
         super().__init__(
             name=name,
@@ -248,8 +248,8 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
             client (DynamicClient): DynamicClient to use.
             role (str): role describes the network role in the pod.
             mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (list[Layer3Subnets]) subnets are used for the pod network across the cluster.
-            join_subnets (str) join_subnets are used inside the OVN network topology.
+            subnets (list[Layer3Subnets]): subnets are used for the pod network across the cluster.
+            join_subnets (str): join_subnets are used inside the OVN network topology.
         """
         super().__init__(
             name=name,
@@ -287,3 +287,68 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
                         "hostSubnet": subnet.host_subnet,
                     }
                     self.res["spec"]["layer3"]["subnets"].append(subnet_dict)
+
+class LocalNetUserDefinedNetwork(UserDefinedNetwork):
+    """
+    UserDefinedNetwork localNet object.
+
+    API reference:
+    https://ovn-kubernetes.io/api-reference/userdefinednetwork-api-spec/#localnetconfig
+    """
+
+    def __init__(
+        self,
+        name=None,
+        namespace=None,
+        client=None,
+        role: str = None,
+        mtu: int = None,
+        subnets: list = None,
+        exclude_subnets: list = None,
+        ipam_lifecycle: str = None,
+        *args,
+        **kwargs,
+    ):
+        """
+        Create and manage UserDefinedNetwork with localNet configuration
+
+        Args:
+            name (str): The name of the UserDefinedNetwork.
+            namespace (str): Namespace of the UserDefinedNetwork.
+            client (DynamicClient): DynamicClient to use.
+            role (str): role describes the network role in the pod.
+            mtu (int): mtu is the maximum transmission unit for a network.
+            subnets (list): subnets are used for the pod network across the cluster.
+            exclude_subnets (list): exclude_subnets is a list of CIDRs that will be removed from the assignable
+                IP address pool specified by the "Subnets" field.
+            ipam_lifecycle (str): ipam_lifecycle controls IP addresses management lifecycle.
+        """
+        super().__init__(
+            name=name,
+            namespace=namespace,
+            client=client,
+            topology=TopologyType.LOCALNET,
+            *args,
+            **kwargs,
+        )
+        self.role = role
+        self.mtu = mtu
+        self.subnets = subnets
+        self.exclude_subnets = exclude_subnets
+        self.ipam_lifecycle = ipam_lifecycle
+
+    def to_dict(self) -> None:
+        super().to_dict()
+        if not self.yaml_file:
+            self.res.setdefault("spec", {}).setdefault("localNet", {})
+            attributes = {
+                "role": self.role,
+                "mtu": self.mtu,
+                "subnets": self.subnets,
+                "excludeSubnets": self.exclude_subnets,
+                "ipamLifecycle": self.ipam_lifecycle
+            }
+
+            for key, value in attributes.items():
+                if value:
+                    self.res["spec"]["localNet"][key] = value
