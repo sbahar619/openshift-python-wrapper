@@ -232,7 +232,6 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
                     self.res["spec"]["layer3"][key] = value
 
             if self.subnets:
-                # TODO add check it is a list
                 self.res["spec"]["layer3"].setdefault("subnets", [])
 
                 for subnet in self.subnets:
