@@ -27,7 +27,6 @@ class UserDefinedNetwork(NamespacedResource):
         layer2: Optional[Dict[str, Any]] = None,
         layer3: Optional[Dict[str, Any]] = None,
         local_net: Optional[Dict[str, Any]] = None,
-        *args,
         **kwargs,
     ):
         """
@@ -45,7 +44,6 @@ class UserDefinedNetwork(NamespacedResource):
             name=name,
             namespace=namespace,
             client=client,
-            *args,
             **kwargs,
         )
         self.topology = topology
@@ -186,7 +184,6 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
         subnets: list = None,
         join_subnets: str = None,
         ipam_lifecycle: str = None,
-        *args,
         **kwargs,
     ):
         """
@@ -207,7 +204,6 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
             namespace=namespace,
             client=client,
             topology=TopologyType.LAYER2,
-            *args,
             **kwargs,
         )
         self.role = role
@@ -273,7 +269,6 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
         mtu: int = None,
         subnets: list[Layer3Subnets] = None,
         join_subnets: str = None,
-        *args,
         **kwargs,
     ):
         """
@@ -293,7 +288,6 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
             namespace=namespace,
             client=client,
             topology=TopologyType.LAYER3,
-            *args,
             **kwargs,
         )
         self.role = role
@@ -343,7 +337,6 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
         subnets: list = None,
         exclude_subnets: list = None,
         ipam_lifecycle: str = None,
-        *args,
         **kwargs,
     ):
         """
@@ -365,7 +358,6 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
             namespace=namespace,
             client=client,
             topology=TopologyType.LOCALNET,
-            *args,
             **kwargs,
         )
         self.role = role
