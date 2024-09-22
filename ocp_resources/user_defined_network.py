@@ -1,5 +1,6 @@
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 
+from kubernetes.dynamic import DynamicClient
 from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 
 from ocp_resources.resource import NamespacedResource
@@ -20,13 +21,13 @@ class UserDefinedNetwork(NamespacedResource):
 
     def __init__(
         self,
-        name=None,
-        namespace=None,
-        client=None,
+        name: str = None,
+        namespace: str = None,
+        client: DynamicClient =None,
         topology: str = None,
-        layer2: Optional[Dict[str, Any]] = None,
-        layer3: Optional[Dict[str, Any]] = None,
-        local_net: Optional[Dict[str, Any]] = None,
+        layer2: Dict[str, Any] = None,
+        layer3: Dict[str, Any] = None,
+        local_net: Dict[str, Any] = None,
         **kwargs,
     ):
         """
@@ -176,9 +177,9 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name=None,
-        namespace=None,
-        client=None,
+        name: str = None,
+        namespace: str = None,
+        client: DynamicClient = None,
         role: str = None,
         mtu: int = None,
         subnets: list = None,
@@ -262,9 +263,9 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name=None,
-        namespace=None,
-        client=None,
+        name: str = None,
+        namespace: str = None,
+        client: DynamicClient = None,
         role: str = None,
         mtu: int = None,
         subnets: list[Layer3Subnets] = None,
@@ -329,9 +330,9 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name=None,
-        namespace=None,
-        client=None,
+        name: str = None,
+        namespace: str = None,
+        client: DynamicClient = None,
         role: str = None,
         mtu: int = None,
         subnets: list = None,
