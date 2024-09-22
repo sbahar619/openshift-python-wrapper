@@ -7,6 +7,9 @@ from ocp_resources.resource import NamespacedResource
 class UdnConfigurationFailed(Exception):
     pass
 
+class StatusConditionFailed(Exception):
+    pass
+
 class UserDefinedNetwork(NamespacedResource):
     """
     UserDefinedNetwork object.
@@ -104,6 +107,59 @@ class UserDefinedNetwork(NamespacedResource):
             self.is_sync_error_condition(condition=condition)
             for condition in self.conditions
         )
+
+    def wait_for_status_condition(
+            self,
+            wait_condition_fns,
+            not_wait_condition_fns,
+            wait_timeout=120,
+            sleep_interval=2
+    ):
+        """
+        Wait for specific status conditions to be met.
+
+        This function continuously checks the current status conditions, waiting for
+        any of the specified "wait" conditions to be satisfied while monitoring for
+        any of the specified "not wait" conditions to trigger a failure.
+
+        Args:
+            wait_condition_fns (list): A list of functions that determine if the
+                desired status condition has been met.
+            not_wait_condition_fns (list): A list of functions that determine if
+                a failure condition has occurred.
+            wait_timeout (int): The maximum time to wait for the conditions to
+                be satisfied (in seconds). Default is 120 seconds.
+            sleep_interval (int): The interval between checks (in seconds).
+                Default is 2 seconds.
+
+        Returns:
+            dict: The condition that indicates the desired status when met.
+
+        Raises:
+            StatusConditionFailed: If a "not wait" condition is met.
+            TimeoutExpiredError: If the timeout expires before the conditions
+                are satisfied.
+        """
+        samples = TimeoutSampler(wait_timeout=wait_timeout, sleep=sleep_interval, func=lambda: self.conditions)
+
+        try:
+            for sample in samples:
+                # Check for any wait condition
+                for condition in sample:
+                    if any(wait_fn(condition) for wait_fn in wait_condition_fns):
+                        return condition
+
+                # Check for any not-wait condition
+                for condition in sample:
+                    if any(not_wait_fn(condition) for not_wait_fn in not_wait_condition_fns):
+                        raise StatusConditionFailed(
+                            f"Failed to wait for the intended status for UDN {self.name}. "
+                            f"Condition message: {condition['message']}"
+                        )
+
+        except (TimeoutExpiredError, StatusConditionFailed) as e:
+            self.logger.error(f"{str(e)}")
+            raise
 
     def wait_for_status_condition_ready(self):
         samples = TimeoutSampler(wait_timeout=120, sleep=2, func=lambda: self.conditions)
