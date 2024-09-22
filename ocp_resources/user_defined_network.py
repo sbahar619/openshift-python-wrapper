@@ -144,12 +144,10 @@ class UserDefinedNetwork(NamespacedResource):
 
         try:
             for sample in samples:
-                # Check for any wait condition
                 for condition in sample:
                     if any(wait_fn(condition) for wait_fn in wait_condition_fns):
                         return condition
 
-                # Check for any not-wait condition
                 for condition in sample:
                     if any(not_wait_fn(condition) for not_wait_fn in not_wait_condition_fns):
                         raise StatusConditionFailed(
@@ -162,29 +160,10 @@ class UserDefinedNetwork(NamespacedResource):
             raise
 
     def wait_for_status_condition_ready(self):
-        samples = TimeoutSampler(wait_timeout=120, sleep=2, func=lambda: self.conditions)
-        try:
-            for sample in samples:
-                condition = next(
-                    (condition for condition in sample if self.is_ready_condition(condition=condition)),
-                    None
-                )
-                if condition:
-                    self.logger.info(f"UDN {self.name} configured Successfully")
-                    return condition
-
-                condition = next(
-                    (condition for condition in sample if self.is_sync_error_condition(condition=condition)),
-                    None
-                )
-                if condition:
-                    raise UdnConfigurationFailed(
-                        f"Failed to configure UDN {self.name} with condition message {condition['message']}"
-                    )
-
-        except (TimeoutExpiredError, UdnConfigurationFailed):
-            self.logger.error(f"Unable to configure UDN {self.name}")
-            raise
+        self.wait_for_status_condition(
+            wait_condition_fns=[self.is_ready_condition],
+            not_wait_condition_fns=[self.is_sync_error_condition]
+        )
 
 class TopologyType():
     LAYER2 = "Layer2"
