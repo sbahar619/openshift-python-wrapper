@@ -151,7 +151,7 @@ class UserDefinedNetwork(NamespacedResource):
             dict: The condition that indicates the desired status when met.
 
         Raises:
-            StatusConditionFailed: If a "not wait" condition is met.
+            StatusConditionFailed: If any of the unexpected conditions is met.
             TimeoutExpiredError: If the timeout expires before the conditions
                 are satisfied.
         """
@@ -174,10 +174,33 @@ class UserDefinedNetwork(NamespacedResource):
             self.logger.error(f"{str(e)}")
             raise
 
-    def wait_for_status_condition_ready(self):
-        self.wait_for_status_condition(
+    def wait_for_status_condition_ready(
+            self,
+            wait_timeout=120,
+            sleep_interval=2,
+    ):
+        """
+        Wait for the UserDefinedNetwork to reach a ready condition status.
+
+        Args:
+            wait_timeout (int, optional): The maximum time to wait for the condition
+                to be met, in seconds. Default is 120 seconds.
+            sleep_interval (int, optional): The time to sleep between status checks,
+                in seconds. Default is 2 seconds.
+
+        Returns:
+            dict: The condition that indicates the desired status when met.
+
+        Raises:
+            StatusConditionFailed: If any of the unexpected conditions are met.
+            TimeoutExpiredError: If the timeout expires before the conditions
+                are satisfied.
+        """
+        return self.wait_for_status_condition(
             wait_condition_fns=[self.is_ready_condition],
-            not_wait_condition_fns=[self.is_sync_error_condition]
+            not_wait_condition_fns=[self.is_sync_error_condition],
+            wait_timeout=wait_timeout,
+            sleep_interval=sleep_interval,
         )
 
 class TopologyType():
