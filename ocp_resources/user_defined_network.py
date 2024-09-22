@@ -74,6 +74,15 @@ class UserDefinedNetwork(NamespacedResource):
             SYNC_ERROR = "SyncError"
 
     def is_ready_condition(self, condition):
+        """
+        Check if the given condition indicates that the UserDefinedNetwork is ready.
+
+        Args:
+            condition (dict): A dictionary representing the condition of the UserDefinedNetwork.
+
+        Returns:
+            bool: True if the condition indicates the UserDefinedNetwork is ready, False otherwise.
+        """
         return (
                 condition["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY and
                 condition["status"] == self.Condition.Status.TRUE and
@@ -81,6 +90,15 @@ class UserDefinedNetwork(NamespacedResource):
         )
 
     def is_sync_error_condition(self, condition):
+        """
+        Check if the given condition indicates a synchronization error for the UserDefinedNetwork.
+
+        Args:
+            condition (dict): A dictionary representing the condition of the UserDefinedNetwork.
+
+        Returns:
+            bool: True if the condition indicates a synchronization error, False otherwise.
+        """
         return (
             condition["reason"] == self.Status.Reason.SYNC_ERROR and
             condition["status"] == self.Condition.Status.FALSE and
