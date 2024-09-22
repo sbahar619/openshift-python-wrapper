@@ -4,13 +4,6 @@ from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 
 from ocp_resources.resource import NamespacedResource
 
-
-class TopologyType():
-    LAYER2 = "Layer2"
-    LAYER3 = "Layer3"
-    LOCALNET = "LocalNet"
-
-
 class UdnConfigurationFailed(Exception):
     pass
 
@@ -130,6 +123,11 @@ class UserDefinedNetwork(NamespacedResource):
                 f"Unable to configure UDN {self.name} "
             )
             raise
+
+class TopologyType():
+    LAYER2 = "Layer2"
+    LAYER3 = "Layer3"
+    LOCALNET = "LocalNet"
 
 class Layer2UserDefinedNetwork(UserDefinedNetwork):
     """
