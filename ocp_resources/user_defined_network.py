@@ -109,19 +109,25 @@ class UserDefinedNetwork(NamespacedResource):
         samples = TimeoutSampler(wait_timeout=120, sleep=2, func=lambda: self.conditions)
         try:
             for sample in samples:
-                for condition in sample:
-                    if self.is_ready_condition(condition=condition):
-                        self.logger.info(f"UDN {self.name} configured Successfully")
-                        return condition
-                    elif self.is_sync_error_condition(condition=condition):
-                        raise UdnConfigurationFailed(
-                            f"Failed to configure UDN {self.name} with condition message {condition['message']}"
-                        )
+                condition = next(
+                    (condition for condition in sample if self.is_ready_condition(condition=condition)),
+                    None
+                )
+                if condition:
+                    self.logger.info(f"UDN {self.name} configured Successfully")
+                    return condition
+
+                condition = next(
+                    (condition for condition in sample if self.is_sync_error_condition(condition=condition)),
+                    None
+                )
+                if condition:
+                    raise UdnConfigurationFailed(
+                        f"Failed to configure UDN {self.name} with condition message {condition['message']}"
+                    )
 
         except (TimeoutExpiredError, UdnConfigurationFailed):
-            self.logger.error(
-                f"Unable to configure UDN {self.name} "
-            )
+            self.logger.error(f"Unable to configure UDN {self.name}")
             raise
 
 class TopologyType():
