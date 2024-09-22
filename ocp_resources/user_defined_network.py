@@ -4,10 +4,8 @@ from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 
 from ocp_resources.resource import NamespacedResource
 
-class UdnConfigurationFailed(Exception):
-    pass
-
 class StatusConditionFailed(Exception):
+    """Exception raised when waiting for a status condition fails."""
     pass
 
 class UserDefinedNetwork(NamespacedResource):
