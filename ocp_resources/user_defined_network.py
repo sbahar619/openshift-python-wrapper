@@ -1,13 +1,16 @@
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 from kubernetes.dynamic import DynamicClient
 from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 
 from ocp_resources.resource import NamespacedResource
 
+
 class StatusConditionFailed(Exception):
     """Exception raised when waiting for a status condition fails."""
+
     pass
+
 
 class UserDefinedNetwork(NamespacedResource):
     """
@@ -21,13 +24,13 @@ class UserDefinedNetwork(NamespacedResource):
 
     def __init__(
         self,
-        name: str = None,
-        namespace: str = None,
-        client: DynamicClient =None,
-        topology: str = None,
-        layer2: Dict[str, Any] = None,
-        layer3: Dict[str, Any] = None,
-        local_net: Dict[str, Any] = None,
+        name: str = "",
+        namespace: str = "",
+        client: Optional[DynamicClient] = None,
+        topology: Optional[str] = None,
+        layer2: Optional[Dict[str, Any]] = None,
+        layer3: Optional[Dict[str, Any]] = None,
+        local_net: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
         """
@@ -36,10 +39,10 @@ class UserDefinedNetwork(NamespacedResource):
         Args:
             name (str): The name of the UserDefinedNetwork.
             namespace (str): Namespace of the UserDefinedNetwork.
-            client (DynamicClient): DynamicClient to use.
-            topology (str): Topology describes network configuration.
-            layer2 (Dict[str, Any]): Layer2 is the Layer2 topology configuration.
-            local_net (Dict[str, Any]): LocalNet is the LocalNet topology configuration.
+            client (Optional[DynamicClient]): DynamicClient to use.
+            topology (Optional[str]): Topology describes network configuration.
+            layer2 (Optional[Dict[str, Any]]): Layer2 is the Layer2 topology configuration.
+            local_net (Optional[Dict[str, Any]]): LocalNet is the LocalNet topology configuration.
         """
         super().__init__(
             name=name,
@@ -84,9 +87,9 @@ class UserDefinedNetwork(NamespacedResource):
             bool: True if the condition indicates the UserDefinedNetwork is ready, False otherwise.
         """
         return (
-                condition["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY and
-                condition["status"] == self.Condition.Status.TRUE and
-                condition["type"] == self.Status.Type.NETWORK_READY
+            condition["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY
+            and condition["status"] == self.Condition.Status.TRUE
+            and condition["type"] == self.Status.Type.NETWORK_READY
         )
 
     def is_sync_error_condition(self, condition):
@@ -100,9 +103,9 @@ class UserDefinedNetwork(NamespacedResource):
             bool: True if the condition indicates a synchronization error, False otherwise.
         """
         return (
-            condition["reason"] == self.Status.Reason.SYNC_ERROR and
-            condition["status"] == self.Condition.Status.FALSE and
-            condition["type"] == self.Status.Type.NETWORK_READY
+            condition["reason"] == self.Status.Reason.SYNC_ERROR
+            and condition["status"] == self.Condition.Status.FALSE
+            and condition["type"] == self.Status.Type.NETWORK_READY
         )
 
     @property
@@ -111,25 +114,13 @@ class UserDefinedNetwork(NamespacedResource):
 
     @property
     def ready(self):
-        return any(
-            self.is_ready_condition(condition=condition)
-            for condition in self.conditions
-        )
+        return any(self.is_ready_condition(condition=condition) for condition in self.conditions)
 
     @property
     def sync_error(self):
-        return any(
-            self.is_sync_error_condition(condition=condition)
-            for condition in self.conditions
-        )
+        return any(self.is_sync_error_condition(condition=condition) for condition in self.conditions)
 
-    def wait_for_status_condition(
-            self,
-            wait_condition_fns,
-            not_wait_condition_fns,
-            wait_timeout=120,
-            sleep_interval=2
-    ):
+    def wait_for_status_condition(self, wait_condition_fns, not_wait_condition_fns, wait_timeout=120, sleep_interval=2):
         """
         Wait for specific status conditions to be met.
 
@@ -175,9 +166,9 @@ class UserDefinedNetwork(NamespacedResource):
             raise
 
     def wait_for_status_condition_ready(
-            self,
-            wait_timeout=120,
-            sleep_interval=2,
+        self,
+        wait_timeout=120,
+        sleep_interval=2,
     ):
         """
         Wait for the UserDefinedNetwork to reach a ready condition status.
@@ -203,10 +194,12 @@ class UserDefinedNetwork(NamespacedResource):
             sleep_interval=sleep_interval,
         )
 
-class TopologyType():
+
+class TopologyType:
     LAYER2 = "Layer2"
     LAYER3 = "Layer3"
     LOCALNET = "LocalNet"
+
 
 class Layer2UserDefinedNetwork(UserDefinedNetwork):
     """
@@ -218,14 +211,14 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name: str = None,
-        namespace: str = None,
-        client: DynamicClient = None,
-        role: str = None,
-        mtu: int = None,
-        subnets: list = None,
-        join_subnets: str = None,
-        ipam_lifecycle: str = None,
+        name: str = "",
+        namespace: str = "",
+        client: Optional[DynamicClient] = None,
+        role: Optional[str] = None,
+        mtu: Optional[int] = None,
+        subnets: Optional[list] = None,
+        join_subnets: Optional[str] = None,
+        ipam_lifecycle: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -234,12 +227,12 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
         Args:
             name (str): The name of the UserDefinedNetwork.
             namespace (str): Namespace of the UserDefinedNetwork.
-            client (DynamicClient): DynamicClient to use.
-            role (str): role describes the network role in the pod.
-            mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (list): subnets are used for the pod network across the cluster.
-            join_subnets (str): join_subnets are used inside the OVN network topology.
-            ipam_lifecycle (str): ipam_lifecycle controls IP addresses management lifecycle.
+            client (Optional[DynamicClient]): DynamicClient to use.
+            role (Optional[str]): role describes the network role in the pod.
+            mtu (Optional[int]): mtu is the maximum transmission unit for a network.
+            subnets (Optional[list]): subnets are used for the pod network across the cluster.
+            join_subnets (Optional[str]): join_subnets are used inside the OVN network topology.
+            ipam_lifecycle (Optional[str]): ipam_lifecycle controls IP addresses management lifecycle.
         """
         super().__init__(
             name=name,
@@ -263,7 +256,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
                 "mtu": self.mtu,
                 "subnets": self.subnets,
                 "joinSubnets": self.join_subnets,
-                "ipamLifecycle": self.ipam_lifecycle
+                "ipamLifecycle": self.ipam_lifecycle,
             }
 
             for key, value in attributes.items():
@@ -278,17 +271,18 @@ class Layer3Subnets:
     API reference:
     https://ovn-kubernetes.io/api-reference/userdefinednetwork-api-spec/#layer3subnet
     """
+
     def __init__(
-            self,
-            cidr: str = None,
-            host_subnet: int = None,
+        self,
+        cidr: Optional[str] = None,
+        host_subnet: Optional[int] = None,
     ):
         """
         UserDefinedNetwork layer3 subnets object.
 
         Args:
-            cidr (str): CIDR specifies L3Subnet, which is split into smaller subnets for every node.
-            host_subnet (int): host_subnet specifies the subnet size for every node.
+            cidr (Optional[str]): CIDR specifies L3Subnet, which is split into smaller subnets for every node.
+            host_subnet (Optional[int]): host_subnet specifies the subnet size for every node.
         """
         self.cidr = cidr
         self.host_subnet = host_subnet
@@ -304,13 +298,13 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name: str = None,
-        namespace: str = None,
-        client: DynamicClient = None,
-        role: str = None,
-        mtu: int = None,
-        subnets: list[Layer3Subnets] = None,
-        join_subnets: str = None,
+        name: str = "",
+        namespace: str = "",
+        client: Optional[DynamicClient] = None,
+        role: Optional[str] = None,
+        mtu: Optional[int] = None,
+        subnets: Optional[list[Layer3Subnets]] = None,
+        join_subnets: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -319,11 +313,11 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
         Args:
             name (str): The name of the UserDefinedNetwork.
             namespace (str): Namespace of the UserDefinedNetwork.
-            client (DynamicClient): DynamicClient to use.
-            role (str): role describes the network role in the pod.
-            mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (list[Layer3Subnets]): subnets are used for the pod network across the cluster.
-            join_subnets (str): join_subnets are used inside the OVN network topology.
+            client (Optional[DynamicClient]): DynamicClient to use.
+            role (Optional[str]): role describes the network role in the pod.
+            mtu (Optional[int]): mtu is the maximum transmission unit for a network.
+            subnets (Optional[list[Layer3Subnets]]): subnets are used for the pod network across the cluster.
+            join_subnets (Optional[str]): join_subnets are used inside the OVN network topology.
         """
         super().__init__(
             name=name,
@@ -361,6 +355,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
                     }
                     self.res["spec"]["layer3"]["subnets"].append(subnet_dict)
 
+
 class LocalNetUserDefinedNetwork(UserDefinedNetwork):
     """
     UserDefinedNetwork localNet object.
@@ -371,14 +366,14 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name: str = None,
-        namespace: str = None,
-        client: DynamicClient = None,
-        role: str = None,
-        mtu: int = None,
-        subnets: list = None,
-        exclude_subnets: list = None,
-        ipam_lifecycle: str = None,
+        name: str = "",
+        namespace: str = "",
+        client: Optional[DynamicClient] = None,
+        role: Optional[str] = None,
+        mtu: Optional[int] = None,
+        subnets: Optional[list] = None,
+        exclude_subnets: Optional[list] = None,
+        ipam_lifecycle: Optional[str] = None,
         **kwargs,
     ):
         """
@@ -387,13 +382,13 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
         Args:
             name (str): The name of the UserDefinedNetwork.
             namespace (str): Namespace of the UserDefinedNetwork.
-            client (DynamicClient): DynamicClient to use.
-            role (str): role describes the network role in the pod.
-            mtu (int): mtu is the maximum transmission unit for a network.
-            subnets (list): subnets are used for the pod network across the cluster.
-            exclude_subnets (list): exclude_subnets is a list of CIDRs that will be removed from the assignable
+            client (Optional[DynamicClient]): DynamicClient to use.
+            role (Optional[str]): role describes the network role in the pod.
+            mtu (Optional[int]): mtu is the maximum transmission unit for a network.
+            subnets (Optional[list]): subnets are used for the pod network across the cluster.
+            exclude_subnets (Optional[list]): exclude_subnets is a list of CIDRs that will be removed from the assignable
                 IP address pool specified by the "Subnets" field.
-            ipam_lifecycle (str): ipam_lifecycle controls IP addresses management lifecycle.
+            ipam_lifecycle (Optional[str]): ipam_lifecycle controls IP addresses management lifecycle.
         """
         super().__init__(
             name=name,
@@ -417,7 +412,7 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
                 "mtu": self.mtu,
                 "subnets": self.subnets,
                 "excludeSubnets": self.exclude_subnets,
-                "ipamLifecycle": self.ipam_lifecycle
+                "ipamLifecycle": self.ipam_lifecycle,
             }
 
             for key, value in attributes.items():
