@@ -5,6 +5,7 @@ from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 
 from ocp_resources.resource import NamespacedResource
 
+
 class WaitForStatusConditionFailed(Exception):
     """Exception raised when waiting for a status condition fails."""
 
@@ -84,6 +85,7 @@ class UserDefinedNetwork(NamespacedResource):
             Reason (class): Contains constants representing various reasons
                             for the status conditions.
         """
+
         class Type:
             """
             Defines the types of status conditions for the UserDefinedNetwork.
@@ -91,6 +93,7 @@ class UserDefinedNetwork(NamespacedResource):
             Attributes:
                 NETWORK_READY (str): Indicates that the network is ready.
             """
+
             NETWORK_READY: str = "NetworkReady"
 
         class Reason:
@@ -102,6 +105,7 @@ class UserDefinedNetwork(NamespacedResource):
                     the network attachment definition is ready.
                 SYNC_ERROR (str): Indicates that there is a synchronization error.
             """
+
             NETWORK_ATTACHMENT_DEFINITION_READY: str = "NetworkAttachmentDefinitionReady"
             SYNC_ERROR: str = "SyncError"
 
@@ -152,11 +156,11 @@ class UserDefinedNetwork(NamespacedResource):
         return any(self.is_sync_error_condition(condition=condition) for condition in self.conditions)
 
     def wait_for_status_condition(
-            self,
-            wait_condition_fns: list,
-            not_wait_condition_fns: list = None,
-            wait_timeout: int = 120,
-            sleep_interval: int = 2,
+        self,
+        wait_condition_fns: list,
+        not_wait_condition_fns: Optional[list] = None,
+        wait_timeout: int = 120,
+        sleep_interval: int = 2,
     ) -> dict:
         """
         Wait for specific status conditions to be met.
@@ -168,7 +172,7 @@ class UserDefinedNetwork(NamespacedResource):
         Args:
             wait_condition_fns (list): A list of functions that determine if the
                 desired status condition has been met.
-            not_wait_condition_fns (list): A list of functions that determine if
+            not_wait_condition_fns (Optional[list]): A list of functions that determine if
                 a failure condition has occurred. Default is None
             wait_timeout (int): The maximum time to wait for the conditions to
                 be satisfied (in seconds). Default is 120 seconds.
@@ -202,6 +206,8 @@ class UserDefinedNetwork(NamespacedResource):
         except (TimeoutExpiredError, WaitForStatusConditionFailed) as e:
             self.logger.error(f"{str(e)}")
             raise
+
+        return {}
 
     def wait_for_status_condition_ready(
         self,
@@ -391,10 +397,8 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
                 for subnet in self.subnets:
                     subnet_dict = {
                         key: value
-                        for key, value in [
-                            ("cidr", subnet.cidr),
-                            ("hostSubnet", subnet.host_subnet)
-                        ] if value is not None
+                        for key, value in [("cidr", subnet.cidr), ("hostSubnet", subnet.host_subnet)]
+                        if value is not None
                     }
                     self.res["spec"]["layer3"]["subnets"].append(subnet_dict)
 
