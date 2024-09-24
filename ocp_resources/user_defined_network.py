@@ -6,6 +6,7 @@ from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 from ocp_resources.resource import NamespacedResource
 
 
+#TODO change name to be more accurate
 class StatusConditionFailed(Exception):
     """Exception raised when waiting for a status condition fails."""
 
@@ -24,8 +25,8 @@ class UserDefinedNetwork(NamespacedResource):
 
     def __init__(
         self,
-        name: str = "",
-        namespace: str = "",
+        name: str,
+        namespace: str,
         client: Optional[DynamicClient] = None,
         topology: Optional[str] = None,
         layer2: Optional[Dict[str, Any]] = None,
@@ -42,6 +43,7 @@ class UserDefinedNetwork(NamespacedResource):
             client (Optional[DynamicClient]): DynamicClient to use.
             topology (Optional[str]): Topology describes network configuration.
             layer2 (Optional[Dict[str, Any]]): Layer2 is the Layer2 topology configuration.
+            layer3 (Optional[Dict[str, Any]]): Layer3 is the Layer3 topology configuration.
             local_net (Optional[Dict[str, Any]]): LocalNet is the LocalNet topology configuration.
         """
         super().__init__(
@@ -59,24 +61,28 @@ class UserDefinedNetwork(NamespacedResource):
         super().to_dict()
         if not self.yaml_file:
             self.res["spec"] = {}
-            if self.topology:
-                self.res["spec"]["topology"] = self.topology
-            if self.layer2:
-                self.res["spec"]["layer2"] = self.layer2
-            if self.layer3:
-                self.res["spec"]["layer3"] = self.layer3
-            if self.local_net:
-                self.res["spec"]["local_net"] = self.local_net
+
+            attributes = {
+                "topology": self.topology,
+                "layer2": self.layer2,
+                "layer3": self.layer3,
+                "localNet": self.local_net,
+            }
+
+            for key, value in attributes.items():
+                if value is not None:
+                    self.res["spec"][key] = value
 
     class Status(NamespacedResource.Condition):
         class Type:
             NETWORK_READY: str = "NetworkReady"
 
         class Reason:
-            NETWORK_ATTACHMENT_DEFINITION_READY = "NetworkAttachmentDefinitionReady"
-            SYNC_ERROR = "SyncError"
+            NETWORK_ATTACHMENT_DEFINITION_READY: str = "NetworkAttachmentDefinitionReady"
+            SYNC_ERROR: str = "SyncError"
 
-    def is_ready_condition(self, condition):
+    @classmethod
+    def is_ready_condition(cls, condition: dict) -> bool:
         """
         Check if the given condition indicates that the UserDefinedNetwork is ready.
 
@@ -87,12 +93,13 @@ class UserDefinedNetwork(NamespacedResource):
             bool: True if the condition indicates the UserDefinedNetwork is ready, False otherwise.
         """
         return (
-            condition["reason"] == self.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY
-            and condition["status"] == self.Condition.Status.TRUE
-            and condition["type"] == self.Status.Type.NETWORK_READY
+            condition["reason"] == cls.Status.Reason.NETWORK_ATTACHMENT_DEFINITION_READY
+            and condition["status"] == cls.Condition.Status.TRUE
+            and condition["type"] == cls.Status.Type.NETWORK_READY
         )
 
-    def is_sync_error_condition(self, condition):
+    @classmethod
+    def is_sync_error_condition(cls, condition: dict) -> bool:
         """
         Check if the given condition indicates a synchronization error for the UserDefinedNetwork.
 
@@ -103,24 +110,30 @@ class UserDefinedNetwork(NamespacedResource):
             bool: True if the condition indicates a synchronization error, False otherwise.
         """
         return (
-            condition["reason"] == self.Status.Reason.SYNC_ERROR
-            and condition["status"] == self.Condition.Status.FALSE
-            and condition["type"] == self.Status.Type.NETWORK_READY
+            condition["reason"] == cls.Status.Reason.SYNC_ERROR
+            and condition["status"] == cls.Condition.Status.FALSE
+            and condition["type"] == cls.Status.Type.NETWORK_READY
         )
 
     @property
-    def conditions(self):
+    def conditions(self) -> list:
         return self.instance.status.conditions
 
     @property
-    def ready(self):
+    def ready(self) -> bool:
         return any(self.is_ready_condition(condition=condition) for condition in self.conditions)
 
     @property
-    def sync_error(self):
+    def sync_error(self) -> bool:
         return any(self.is_sync_error_condition(condition=condition) for condition in self.conditions)
 
-    def wait_for_status_condition(self, wait_condition_fns, not_wait_condition_fns, wait_timeout=120, sleep_interval=2):
+    def wait_for_status_condition(
+            self,
+            wait_condition_fns: list,
+            not_wait_condition_fns: list = None,
+            wait_timeout: int = 120,
+            sleep_interval: int = 2,
+    ) -> dict:
         """
         Wait for specific status conditions to be met.
 
@@ -132,7 +145,7 @@ class UserDefinedNetwork(NamespacedResource):
             wait_condition_fns (list): A list of functions that determine if the
                 desired status condition has been met.
             not_wait_condition_fns (list): A list of functions that determine if
-                a failure condition has occurred.
+                a failure condition has occurred. Default is None
             wait_timeout (int): The maximum time to wait for the conditions to
                 be satisfied (in seconds). Default is 120 seconds.
             sleep_interval (int): The interval between checks (in seconds).
@@ -154,12 +167,13 @@ class UserDefinedNetwork(NamespacedResource):
                     if any(wait_fn(condition) for wait_fn in wait_condition_fns):
                         return condition
 
-                for condition in sample:
-                    if any(not_wait_fn(condition) for not_wait_fn in not_wait_condition_fns):
-                        raise StatusConditionFailed(
-                            f"Failed to wait for the intended status for UDN {self.name}. "
-                            f"Condition message: {condition['message']}"
-                        )
+                if not_wait_condition_fns:
+                    for condition in sample:
+                        if any(not_wait_fn(condition) for not_wait_fn in not_wait_condition_fns):
+                            raise StatusConditionFailed(
+                                f"Failed to wait for the intended status for UDN {self.name}. "
+                                f"Condition message: {condition['message']}"
+                            )
 
         except (TimeoutExpiredError, StatusConditionFailed) as e:
             self.logger.error(f"{str(e)}")
@@ -167,9 +181,9 @@ class UserDefinedNetwork(NamespacedResource):
 
     def wait_for_status_condition_ready(
         self,
-        wait_timeout=120,
-        sleep_interval=2,
-    ):
+        wait_timeout: int = 120,
+        sleep_interval: int = 2,
+    ) -> dict:
         """
         Wait for the UserDefinedNetwork to reach a ready condition status.
 
@@ -211,8 +225,8 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name: str = "",
-        namespace: str = "",
+        name: str,
+        namespace: str,
         client: Optional[DynamicClient] = None,
         role: Optional[str] = None,
         mtu: Optional[int] = None,
@@ -251,6 +265,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
         super().to_dict()
         if not self.yaml_file:
             self.res.setdefault("spec", {}).setdefault("layer2", {})
+
             attributes = {
                 "role": self.role,
                 "mtu": self.mtu,
@@ -260,7 +275,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
             }
 
             for key, value in attributes.items():
-                if value:
+                if value is not None:
                     self.res["spec"]["layer2"][key] = value
 
 
@@ -298,8 +313,8 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name: str = "",
-        namespace: str = "",
+        name: str,
+        namespace: str,
         client: Optional[DynamicClient] = None,
         role: Optional[str] = None,
         mtu: Optional[int] = None,
@@ -335,6 +350,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
         super().to_dict()
         if not self.yaml_file:
             self.res.setdefault("spec", {}).setdefault("layer3", {})
+
             attributes = {
                 "role": self.role,
                 "mtu": self.mtu,
@@ -342,10 +358,10 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
             }
 
             for key, value in attributes.items():
-                if value:
+                if value is not None:
                     self.res["spec"]["layer3"][key] = value
 
-            if self.subnets:
+            if self.subnets is not None:
                 self.res["spec"]["layer3"].setdefault("subnets", [])
 
                 for subnet in self.subnets:
@@ -353,6 +369,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
                         "cidr": subnet.cidr,
                         "hostSubnet": subnet.host_subnet,
                     }
+                    #TODO add condition to check if attributs initialized
                     self.res["spec"]["layer3"]["subnets"].append(subnet_dict)
 
 
@@ -366,8 +383,8 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
 
     def __init__(
         self,
-        name: str = "",
-        namespace: str = "",
+        name: str,
+        namespace: str,
         client: Optional[DynamicClient] = None,
         role: Optional[str] = None,
         mtu: Optional[int] = None,
@@ -407,6 +424,7 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
         super().to_dict()
         if not self.yaml_file:
             self.res.setdefault("spec", {}).setdefault("localNet", {})
+
             attributes = {
                 "role": self.role,
                 "mtu": self.mtu,
@@ -416,5 +434,5 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
             }
 
             for key, value in attributes.items():
-                if value:
+                if value is not None:
                     self.res["spec"]["localNet"][key] = value
