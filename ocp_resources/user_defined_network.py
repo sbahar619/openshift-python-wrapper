@@ -72,10 +72,36 @@ class UserDefinedNetwork(NamespacedResource):
                     self.res["spec"][key] = value
 
     class Status(NamespacedResource.Condition):
+        """
+        Represents the status conditions of a UserDefinedNetwork.
+
+        This class extends the base `Condition` class and provides specific
+        status types and reasons that indicate the current state of the
+        UserDefinedNetwork.
+
+        Attributes:
+            Type (class): Contains constants representing different status types.
+            Reason (class): Contains constants representing various reasons
+                            for the status conditions.
+        """
         class Type:
+            """
+            Defines the types of status conditions for the UserDefinedNetwork.
+
+            Attributes:
+                NETWORK_READY (str): Indicates that the network is ready.
+            """
             NETWORK_READY: str = "NetworkReady"
 
         class Reason:
+            """
+            Defines the reasons for the status conditions of the UserDefinedNetwork.
+
+            Attributes:
+                NETWORK_ATTACHMENT_DEFINITION_READY (str): Indicates that
+                    the network attachment definition is ready.
+                SYNC_ERROR (str): Indicates that there is a synchronization error.
+            """
             NETWORK_ATTACHMENT_DEFINITION_READY: str = "NetworkAttachmentDefinitionReady"
             SYNC_ERROR: str = "SyncError"
 
