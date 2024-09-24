@@ -145,14 +145,42 @@ class UserDefinedNetwork(NamespacedResource):
 
     @property
     def conditions(self) -> list:
+        """
+        Retrieve the current status conditions of the UserDefinedNetwork instance.
+
+        This property accesses the list of conditions from the status of the
+        UserDefinedNetwork instance.
+
+        Returns:
+            list: A list of status conditions associated with the UserDefinedNetwork instance.
+        """
         return self.instance.status.conditions
 
     @property
     def ready(self) -> bool:
+        """
+        Determine if the UserDefinedNetwork instance is ready.
+
+        This property evaluates the current status conditions of the
+        UserDefinedNetwork instance to check if any indicate that the instance
+        is in a ready state.
+
+        Returns:
+            bool: True if the UserDefinedNetwork is ready; otherwise, False.
+        """
         return any(self.is_ready_condition(condition=condition) for condition in self.conditions)
 
     @property
     def sync_error(self) -> bool:
+        """
+        Check for synchronization errors in the UserDefinedNetwork instance.
+
+        This property assesses the current status conditions to identify if
+        any indicate a synchronization error for the UserDefinedNetwork instance.
+
+        Returns:
+            bool: True if there is a synchronization error; otherwise, False.
+        """
         return any(self.is_sync_error_condition(condition=condition) for condition in self.conditions)
 
     def wait_for_status_condition(
