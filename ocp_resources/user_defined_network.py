@@ -240,6 +240,15 @@ class UserDefinedNetwork(NamespacedResource):
 
 
 class TopologyType:
+    """
+    This class serves as a container for constants representing various types of network topologies
+    used in the UserDefinedNetwork configuration.
+
+    Attributes:
+        LAYER2 (str): Represents a Layer2 topology.
+        LAYER3 (str): Represents a Layer3 topology.
+        LOCALNET (str): Represents a LocalNet topology.
+    """
     LAYER2 = "Layer2"
     LAYER3 = "Layer3"
     LOCALNET = "LocalNet"
