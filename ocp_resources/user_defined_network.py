@@ -277,6 +277,7 @@ class TopologyType:
         LAYER3 (str): Represents a Layer3 topology.
         LOCALNET (str): Represents a LocalNet topology.
     """
+
     LAYER2 = "Layer2"
     LAYER3 = "Layer3"
     LOCALNET = "LocalNet"
