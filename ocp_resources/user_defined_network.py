@@ -5,9 +5,7 @@ from timeout_sampler import TimeoutSampler, TimeoutExpiredError
 
 from ocp_resources.resource import NamespacedResource
 
-
-#TODO change name to be more accurate
-class StatusConditionFailed(Exception):
+class WaitForStatusConditionFailed(Exception):
     """Exception raised when waiting for a status condition fails."""
 
     pass
@@ -155,7 +153,7 @@ class UserDefinedNetwork(NamespacedResource):
             dict: The condition that indicates the desired status when met.
 
         Raises:
-            StatusConditionFailed: If any of the unexpected conditions is met.
+            WaitForStatusConditionFailed: If any of the unexpected conditions is met.
             TimeoutExpiredError: If the timeout expires before the conditions
                 are satisfied.
         """
@@ -170,12 +168,12 @@ class UserDefinedNetwork(NamespacedResource):
                 if not_wait_condition_fns:
                     for condition in sample:
                         if any(not_wait_fn(condition) for not_wait_fn in not_wait_condition_fns):
-                            raise StatusConditionFailed(
+                            raise WaitForStatusConditionFailed(
                                 f"Failed to wait for the intended status for UDN {self.name}. "
                                 f"Condition message: {condition['message']}"
                             )
 
-        except (TimeoutExpiredError, StatusConditionFailed) as e:
+        except (TimeoutExpiredError, WaitForStatusConditionFailed) as e:
             self.logger.error(f"{str(e)}")
             raise
 
@@ -197,7 +195,7 @@ class UserDefinedNetwork(NamespacedResource):
             dict: The condition that indicates the desired status when met.
 
         Raises:
-            StatusConditionFailed: If any of the unexpected conditions are met.
+            WaitForStatusConditionFailed: If any of the unexpected conditions are met.
             TimeoutExpiredError: If the timeout expires before the conditions
                 are satisfied.
         """
@@ -366,10 +364,12 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
 
                 for subnet in self.subnets:
                     subnet_dict = {
-                        "cidr": subnet.cidr,
-                        "hostSubnet": subnet.host_subnet,
+                        key: value
+                        for key, value in [
+                            ("cidr", subnet.cidr),
+                            ("hostSubnet", subnet.host_subnet)
+                        ] if value is not None
                     }
-                    #TODO add condition to check if attributs initialized
                     self.res["spec"]["layer3"]["subnets"].append(subnet_dict)
 
 
