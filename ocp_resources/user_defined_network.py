@@ -95,8 +95,7 @@ class UserDefinedNetwork(NamespacedResource):
             Defines the reasons for the status conditions of the UserDefinedNetwork.
 
             Attributes:
-                NETWORK_ATTACHMENT_DEFINITION_READY (str): Indicates that
-                    the network attachment definition is ready.
+                NETWORK_ATTACHMENT_DEFINITION_READY (str): Indicates that the network attachment definition is ready.
                 SYNC_ERROR (str): Indicates that there is a synchronization error.
             """
 
