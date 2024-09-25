@@ -224,18 +224,15 @@ class UserDefinedNetwork(NamespacedResource):
         Wait for the UserDefinedNetwork to reach a ready condition status.
 
         Args:
-            wait_timeout (int, optional): The maximum time to wait for the condition
-                to be met, in seconds. Default is 120 seconds.
-            sleep_interval (int, optional): The time to sleep between status checks,
-                in seconds. Default is 2 seconds.
+            wait_timeout (int, optional): The maximum time to wait for the condition to be met, in seconds.
+            sleep_interval (int, optional): The time to sleep between status checks, in seconds.
 
         Returns:
             dict: The condition that indicates the desired status when met.
 
         Raises:
             WaitForStatusConditionFailed: If any of the unexpected conditions are met.
-            TimeoutExpiredError: If the timeout expires before the conditions
-                are satisfied.
+            TimeoutExpiredError: If the timeout expires before the conditions are satisfied.
         """
         return self.wait_for_status_condition(
             wait_condition_fns=[self.is_ready_condition],
