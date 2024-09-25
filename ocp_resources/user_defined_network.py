@@ -141,9 +141,6 @@ class UserDefinedNetwork(NamespacedResource):
         """
         Retrieve the current status conditions of the UserDefinedNetwork instance.
 
-        This property accesses the list of conditions from the status of the
-        UserDefinedNetwork instance.
-
         Returns:
             list: A list of status conditions associated with the UserDefinedNetwork instance.
         """
