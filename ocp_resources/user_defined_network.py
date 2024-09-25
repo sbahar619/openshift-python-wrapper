@@ -36,7 +36,7 @@ class UserDefinedNetwork(NamespacedResource):
 
         Args:
             name (str): The name of the UserDefinedNetwork.
-            namespace (str): Namespace of the UserDefinedNetwork.
+            namespace (str): The namespace of the UserDefinedNetwork.
             client (Optional[DynamicClient]): DynamicClient to use.
             topology (Optional[str]): Topology describes network configuration.
             layer2 (Optional[Dict[str, Any]]): Layer2 is the Layer2 topology configuration.
@@ -306,7 +306,7 @@ class Layer2UserDefinedNetwork(UserDefinedNetwork):
 
         Args:
             name (str): The name of the UserDefinedNetwork.
-            namespace (str): Namespace of the UserDefinedNetwork.
+            namespace (str): The namespace of the UserDefinedNetwork.
             client (Optional[DynamicClient]): DynamicClient to use.
             role (Optional[str]): role describes the network role in the pod.
             mtu (Optional[int]): mtu is the maximum transmission unit for a network.
@@ -393,7 +393,7 @@ class Layer3UserDefinedNetwork(UserDefinedNetwork):
 
         Args:
             name (str): The name of the UserDefinedNetwork.
-            namespace (str): Namespace of the UserDefinedNetwork.
+            namespace (str): The namespace of the UserDefinedNetwork.
             client (Optional[DynamicClient]): DynamicClient to use.
             role (Optional[str]): role describes the network role in the pod.
             mtu (Optional[int]): mtu is the maximum transmission unit for a network.
@@ -464,7 +464,7 @@ class LocalNetUserDefinedNetwork(UserDefinedNetwork):
 
         Args:
             name (str): The name of the UserDefinedNetwork.
-            namespace (str): Namespace of the UserDefinedNetwork.
+            namespace (str): The namespace of the UserDefinedNetwork.
             client (Optional[DynamicClient]): DynamicClient to use.
             role (Optional[str]): role describes the network role in the pod.
             mtu (Optional[int]): mtu is the maximum transmission unit for a network.
