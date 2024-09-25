@@ -244,8 +244,7 @@ class UserDefinedNetwork(NamespacedResource):
 
 class TopologyType:
     """
-    This class serves as a container for constants representing various types of network topologies
-    used in the UserDefinedNetwork configuration.
+    This class contains constants for different network topology types used in the UserDefinedNetwork configuration.
 
     Attributes:
         LAYER2 (str): Represents a Layer2 topology.
