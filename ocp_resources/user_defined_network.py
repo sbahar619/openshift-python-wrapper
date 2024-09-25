@@ -149,11 +149,7 @@ class UserDefinedNetwork(NamespacedResource):
     @property
     def ready(self) -> bool:
         """
-        Determine if the UserDefinedNetwork instance is ready.
-
-        This property evaluates the current status conditions of the
-        UserDefinedNetwork instance to check if any indicate that the instance
-        is in a ready state.
+        Check if the UserDefinedNetwork is ready.
 
         Returns:
             bool: True if the UserDefinedNetwork is ready; otherwise, False.
@@ -163,10 +159,7 @@ class UserDefinedNetwork(NamespacedResource):
     @property
     def sync_error(self) -> bool:
         """
-        Check for synchronization errors in the UserDefinedNetwork instance.
-
-        This property assesses the current status conditions to identify if
-        any indicate a synchronization error for the UserDefinedNetwork instance.
+        Check for synchronization errors in the UserDefinedNetwork.
 
         Returns:
             bool: True if there is a synchronization error; otherwise, False.
