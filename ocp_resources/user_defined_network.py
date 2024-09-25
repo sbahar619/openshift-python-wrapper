@@ -176,27 +176,22 @@ class UserDefinedNetwork(NamespacedResource):
         """
         Wait for specific status conditions to be met.
 
-        This function continuously checks the current status conditions, waiting for
-        any of the specified "wait" conditions to be satisfied while monitoring for
-        any of the specified "not wait" conditions to trigger a failure.
+        This function continuously checks the current status conditions, waiting for any of the specified "wait"
+        conditions to be satisfied while monitoring for any of the specified "not wait" conditions to trigger a failure.
 
         Args:
-            wait_condition_fns (list): A list of functions that determine if the
-                desired status condition has been met.
-            not_wait_condition_fns (Optional[list]): A list of functions that determine if
-                a failure condition has occurred. Default is None
-            wait_timeout (int): The maximum time to wait for the conditions to
-                be satisfied (in seconds). Default is 120 seconds.
+            wait_condition_fns (list): A list of functions that determine if the desired status condition has been met.
+            not_wait_condition_fns (Optional[list]): A list of functions that determine if a failure condition has
+                occurred. Default is None
+            wait_timeout (int): The maximum time to wait for the conditions to be satisfied (in seconds).
             sleep_interval (int): The interval between checks (in seconds).
-                Default is 2 seconds.
 
         Returns:
             dict: The condition that indicates the desired status when met.
 
         Raises:
             WaitForStatusConditionFailed: If any of the unexpected conditions is met.
-            TimeoutExpiredError: If the timeout expires before the conditions
-                are satisfied.
+            TimeoutExpiredError: If the timeout expires before the conditions are satisfied.
         """
         samples = TimeoutSampler(wait_timeout=wait_timeout, sleep=sleep_interval, func=lambda: self.conditions)
 
