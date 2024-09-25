@@ -80,8 +80,7 @@ class UserDefinedNetwork(NamespacedResource):
 
         Attributes:
             Type (class): Contains constants representing different status types.
-            Reason (class): Contains constants representing various reasons
-                            for the status conditions.
+            Reason (class): Contains constants representing various reasons for the status conditions.
         """
 
         class Type:
