@@ -72,11 +72,8 @@ class UserDefinedNetwork(NamespacedResource):
 
     class Status(NamespacedResource.Condition):
         """
-        Represents the status conditions of a UserDefinedNetwork.
-
-        This class extends the base `Condition` class and provides specific
-        status types and reasons that indicate the current state of the
-        UserDefinedNetwork.
+        This class represents the status conditions of a UserDefinedNetwork and provides specific
+        status types and reasons that indicate the current state of the UserDefinedNetwork.
 
         Attributes:
             Type (class): Contains constants representing different status types.
