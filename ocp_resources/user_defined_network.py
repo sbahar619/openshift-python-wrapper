@@ -1,8 +1,6 @@
 from typing import Dict, Any, Optional
-
 from kubernetes.dynamic import DynamicClient
 from timeout_sampler import TimeoutSampler, TimeoutExpiredError
-
 from ocp_resources.resource import NamespacedResource
 
 
