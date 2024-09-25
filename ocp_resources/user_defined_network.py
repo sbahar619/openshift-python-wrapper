@@ -183,8 +183,8 @@ class UserDefinedNetwork(NamespacedResource):
             wait_condition_fns (list): A list of functions that determine if the desired status condition has been met.
             not_wait_condition_fns (Optional[list]): A list of functions that determine if a failure condition has
                 occurred. Default is None
-            wait_timeout (int): The maximum time to wait for the conditions to be satisfied (in seconds).
-            sleep_interval (int): The interval between checks (in seconds).
+            wait_timeout (int, optional): The maximum time to wait for the conditions to be satisfied (in seconds).
+            sleep_interval (int, optional): The interval between checks (in seconds).
 
         Returns:
             dict: The condition that indicates the desired status when met.
