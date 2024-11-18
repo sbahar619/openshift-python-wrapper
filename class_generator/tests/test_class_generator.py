@@ -20,10 +20,12 @@ from class_generator.class_generator import TESTS_MANIFESTS_DIR, class_generator
         "ImageContentSourcePolicy",
         "Machine",
         "NMState",
+        "OAuth",
         "Pod",
         "Secret",
         "ServiceMeshMember",
         "ServingRuntime",
+        "Pipeline",
     ),
 )
 def test_parse_explain(tmpdir_factory, kind):
